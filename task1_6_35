@@ -909,7 +909,7 @@ if __name__ == "__main__":
         img[:h, :w, :c] = upout
         img[:h, w:, :c] = downout
 
-        cv2.imshow("frame", img)
+        cv2.imshow("frame",img)
         key = cv2.waitKey(1)
         if key in [ord('q'), 27]:
             break
