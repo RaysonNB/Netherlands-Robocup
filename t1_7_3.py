@@ -923,26 +923,10 @@ if __name__ == "__main__":
                     text = chassis.status_text
                     if code == 3:
                         break
-                q = [_imu.orientation.x,_imu.orientation.y,_imu.orientation.z,_imu.orientation.w]
-                roll1, pitch1, yaw1 = euler_from_quaternion(q)
-
-                y_angle=-1
-                loop_cnt=0
-                while True:
-                    loop_cnt+=1
-                    move(0,0.2)
-                    time.sleep(1)
-
+                if change_mode == 1:
+                    break
+                for i in range(5):
                     poses = net_pose.forward(up_image)
-                    min_d = 9999
-                    t_idx = -1
-
-                    q = [_imu.orientation.x,_imu.orientation.y,_imu.orientation.z,_imu.orientation.w]
-                    roll2, pitch2, yaw2 = euler_from_quaternion(q)
-                    degree666 = (2 * np.pi - ((yaw2 + np.pi) - (yaw1 + np.pi))) * 180 / np.pi % 360
-
-                    if(loop_cnt==1): y_angle=degree66
-                    if (loop_cnt > 1 and abs(y_angle-degree66)>330): break
 
                     for i, pose in enumerate(poses):
                         if pose[5][2] == 0 or pose[6][2] == 0:
@@ -959,9 +943,10 @@ if __name__ == "__main__":
                         if d<=2000 and d!=0:
                             change_mode=1
 
-                if change_mode==1:
-                    break
-            action = "back_people2"
+                    if change_mode==1:
+                        action = "walking"
+                        break
+                    time.sleep(0.1)
         if action == "walking":
             #set five position
             #just two positive line
