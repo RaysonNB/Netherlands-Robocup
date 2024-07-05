@@ -530,6 +530,9 @@ if __name__ == "__main__":
     target_distance = 0
     dir_pos = "left"
     # right_90()
+    
+    queue_cnt = 0
+    queue_checking = 0
 
     while not rospy.is_shutdown():
         # voice check
@@ -543,7 +546,7 @@ if __name__ == "__main__":
         # if _depth2 is None: print("down depth none")
         if _depth1 is None: print("up depth none")
         if _image1 is None: print("up rgb none")
-
+        
         # if _depth1 is None or _image1 is None or _depth2 is None or _frame2 is None: continue
 
         # var needs in while
@@ -617,7 +620,7 @@ if __name__ == "__main__":
                 score = detection[4]
                 cx = (x2 - x1) // 2 + x1
                 cy = (y2 - y1) // 2 + y1
-                if score > 0.5 and class_id == class_need:
+                if score > 0.6 and class_id == class_need:
                     detection_list.append([x1, y1, x2, y2, cx, cy])
                     cv2.rectangle(down_image, (x1, y1), (x2, y2), (0, 255, 0), 2)
                     cv2.circle(down_image, (cx, cy), 5, (0, 255, 0), -1)
@@ -757,15 +760,20 @@ if __name__ == "__main__":
                 cy = (y2 - y1) // 2 + y1
                 cv2.circle(down_image, (cx, cy), 5, (0, 255, 0), -1)
                 _, _, d = get_real_xyz(down_depth, cx, cy, 2)
+                
+                #if d==0:
+                cv2.putText(down_image, d, (x1+5, y1-15), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 255), 2)
                 if score < 0.5: continue
-                if d >= 2500 or d == 0: continue
+                if d >= 1800 or d == 0: continue
                 if (d != 0 and d < min_d):
+                    print("find 1")
                     t_idx = i
                     min_d = d
                     target_cx, traget_cy = cx, cy
             d = -1
             x, z = 0, 0
             if t_idx != -1:
+                
                 _, _, d = get_real_xyz(down_depth, target_cx, traget_cy, 2)
                 cv2.circle(down_image, (target_cx, traget_cy), 5, (0, 255, 255), -1)
 
@@ -779,7 +787,7 @@ if __name__ == "__main__":
             if d <= 900 and d != -1 and d != 0 and cx != 0 and cy != 0:
 
                 speed = 0.2
-                timems = round(370) // speed // 10
+                timems = round(360) // speed // 10
                 print(timems)
                 for i in range(round(timems)):
                     move(speed, 0)
@@ -815,9 +823,9 @@ if __name__ == "__main__":
                 time.sleep(1)
                 # for i in range(20000): move(0.2, 0)
                 time.sleep(1)
-                action = "back_people"
+                action = "5_line"
                 step = "none"
-                break
+                #break
 
         if action == "grap":
             step = "none"
@@ -918,40 +926,44 @@ if __name__ == "__main__":
             else:
                 main_list = right_left
             change_mode = 0
-            for i in range(5):
-                clear_costmaps
-                # chassis.move_to(-0.703,-4.65,0)
-                ax, ay, az = main_list[i]
-                chassis.move_to(ax, ay, az)
-                # checking
-                while not rospy.is_shutdown():
-                    # 4. Get the chassis status.
-                    code = chassis.status_code
-                    text = chassis.status_text
-                    if code == 3:
-                        break
-                for j in range(5):
-                    poses = net_pose.forward(up_image)
-
-                    for t, pose in enumerate(poses):
-                        if pose[5][2] == 0 or pose[6][2] == 0:
-                            continue
-                        p5 = list(map(int, pose[5][:2]))
-                        p6 = list(map(int, pose[6][:2]))
-
-                        cx = (p5[0] + p6[0]) // 2
-                        cy = (p5[1] + p6[1]) // 2
-                        cv2.circle(up_image, p5, 5, (0, 0, 255), -1)
-                        cv2.circle(up_image, p6, 5, (0, 0, 255), -1)
-                        cv2.circle(up_image, (cx, cy), 5, (0, 255, 0), -1)
-                        _, _, d = get_real_xyz(up_depth, cx, cy, 2)
-                        if d <= 1200 and d != 0 and abs(cx)<160:
-                            change_mode = 1
-
-                if change_mode == 1:
-                    action = "walking"
+            clear_costmaps
+            # chassis.move_to(-0.703,-4.65,0)
+            ax, ay, az = main_list[queue_cnt]
+            chassis.move_to(ax, ay, az)
+            # checking
+            while not rospy.is_shutdown():
+                # 4. Get the chassis status.
+                code = chassis.status_code
+                text = chassis.status_text
+                if code == 3:
                     break
-            action = "back3"
+            queue_cnt+=1
+            action = "check"
+        if action == "check":
+            poses = net_pose.forward(up_image)
+            print("checking")
+            for t, pose in enumerate(poses):
+                if pose[5][2] == 0 or pose[6][2] == 0:
+                    continue
+                p5 = list(map(int, pose[5][:2]))
+                p6 = list(map(int, pose[6][:2]))
+
+                cx = (p5[0] + p6[0]) // 2
+                cy = (p5[1] + p6[1]) // 2
+                cv2.circle(up_image, p5, 5, (0, 0, 255), -1)
+                cv2.circle(up_image, p6, 5, (0, 0, 255), -1)
+                cv2.circle(up_image, (cx, cy), 5, (0, 255, 0), -1)
+                _, _, d = get_real_xyz(up_depth, cx, cy, 2)
+                if d <= 1200 and d != 0 and abs(cx)<160:
+                    change_mode = 1
+            queue_checking+=1
+            
+            if change_mode == 1:
+                action = "walking"
+            
+            if queue_checking>=5:
+                action = "5_line"
+                queue_checking=0
         if action == "walking":
             # set five position
             # just two positive line
@@ -1001,7 +1013,7 @@ if __name__ == "__main__":
             P1, P2, P3, P4 = [y1, x1], [y1, x2], [y2, x1], [y2, x2]
 
             # left up, right up, left down, right down [y,x]
-            if ((P[0] <= y2 and P[0] >= y1) and (P[1] <= x2 and P[1] >= x1)) and d >= 2500 and d != 0:
+            if ((P[0] <= y1 and P[0] >= y2) and (P[1] <= x2 and P[1] >= x1)) and d >= 2500 and d != 0:
                 action = "back3"
 
         if action == "back3":
