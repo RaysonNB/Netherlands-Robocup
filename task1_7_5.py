@@ -748,7 +748,7 @@ if __name__ == "__main__":
         if action == "front":
             print("front")
             t_idx = -1
-
+            min_d = 999999999
             msg = Twist()
             target_cx, traget_cy = 0, 0
             detections = dnn_yolo1.forward(down_image)[0]["det"]
