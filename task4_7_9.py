@@ -657,8 +657,7 @@ if __name__ == "__main__":
                             cv2.putText(down_image, str(int(v)), (x1 + 5, y1 - 30), cv2.FONT_HERSHEY_SIMPLEX, 1,(0, 255, 0),2)
             print("check_bootle_cnt", check_bootle_cnt)
             print("step_now", step)
-            if len(bb) >= 3:
-                step2 = "gettttt"
+            step2 = "gettttt"
             if step2 == "gettttt":
                 #mark = 0
                 print("turn_get")
