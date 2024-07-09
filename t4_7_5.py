@@ -666,7 +666,6 @@ if __name__ == "__main__":
                 move(0, v)
                 if abs(e) <= 5:
                     step2 = "go"
-
             if step2 == "go":
 
                 cx, cy = w // 2, h // 2
