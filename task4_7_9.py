@@ -24,6 +24,7 @@ from std_srvs.srv import Empty
 
 from typing import Tuple, List
 
+
 class FollowMe(object):
     def __init__(self) -> None:
         self.pre_x, self.pre_z = 0.0, 0.0
@@ -144,6 +145,7 @@ class FollowMe(object):
         self.pre_z = cur_z
 
         return cur_x, cur_z, frame, "yes"
+
 
 # gemini2
 def callback_image2(msg):
@@ -362,6 +364,7 @@ def callback_voice(msg):
     global s
     s = msg.text
 
+
 def callback_image1(msg):
     global _image1
     _image1 = CvBridge().imgmsg_to_cv2(msg, "bgr8")
@@ -370,16 +373,20 @@ def callback_image1(msg):
 def callback_depth1(msg):
     global _depth1
     _depth1 = CvBridge().imgmsg_to_cv2(msg, "passthrough")
+
+
 def test_point(xs, ys, d):
-    sty=ys
-    stx=xs
+    sty = ys
+    stx = xs
     if sty * math.sin(d) < 0:
         n1x = -abs(sty * math.sin(d)) + stx * math.cos(d)
     else:
         n1x = abs(sty * math.sin(d)) + stx * math.cos(d)
-    
+
     n1y = ((stx ** 2 + sty ** 2) * math.cos(d) - stx * n1x) / sty
-    return n1x,n1y
+    return n1x, n1y
+
+
 if __name__ == "__main__":
     rospy.init_node("demo")
     rospy.loginfo("demo node start!")
@@ -409,8 +416,8 @@ if __name__ == "__main__":
     dnn_yolo1 = Yolov8("bag_100", device_name="GPU")
     dnn_yolo1.classes = ['obj']
     print("yolo")
-    
-    action="none"
+
+    action = "none"
     net_pose = HumanPoseEstimation(device_name="GPU")
     step = "ft"  # remember
     f_cnt = 0
@@ -428,7 +435,7 @@ if __name__ == "__main__":
     rospy.Subscriber(topic_imu, Imu, callback_imu)
     rospy.wait_for_message(topic_imu, Imu)
     say("start the program")
-    mode=0
+    mode = 0
     sb = 0
     chassis = RobotChassis()
     clear_costmaps = rospy.ServiceProxy("/move_base/clear_costmaps", Empty)
@@ -439,8 +446,8 @@ if __name__ == "__main__":
     bottlecolor = ["pink", "black", "yellow"]
     saidd = 0
     get_b = 0
-    dis_list=[]
-    #depth up 70 down 240
+    dis_list = []
+    # depth up 70 down 240
     open_gripper(3)
 
     line_destory_cnt = 0
@@ -448,10 +455,10 @@ if __name__ == "__main__":
 
     hand_cnt = 0
     bottle = []
-    s_c,s_d=[],[]
-    check_bootle_cnt=0
+    s_c, s_d = [], []
+    check_bootle_cnt = 0
     _fw = FollowMe()
-    
+
     while not rospy.is_shutdown():
         rospy.Rate(10).sleep()
         if frame2 is None:
@@ -474,8 +481,8 @@ if __name__ == "__main__":
         if step == "ft":
             clear_costmaps
             say("start")
-            chassis.move_to(-0.468,-0.220,-2.719)
-            #門口
+            chassis.move_to(-0.468, -0.220, -2.719)
+            # 門口
             # checking
             while not rospy.is_shutdown():
                 # 4. Get the chassis status.
@@ -485,8 +492,8 @@ if __name__ == "__main__":
                     break
             say("someone need help, come")
             clear_costmaps
-            chassis.move_to(3.93,-0.7740,2.045)
-            #原點
+            chassis.move_to(3.93, -0.7740, 2.045)
+            # 原點
             while not rospy.is_shutdown():
                 # 4. Get the chassis status.
                 code = chassis.status_code
@@ -575,6 +582,9 @@ if __name__ == "__main__":
             if (len(bb) < 3) and mode == 1:
                 move(0, 0.3)
             else:
+                step2="yyyy"
+            
+            if step2 == "yyyy":
                 mode += 1
                 if get1 == 0:
                     mode = 3
@@ -591,7 +601,7 @@ if __name__ == "__main__":
                 yaw2 = yawb
                 move(0, 0)
                 degree666 = (2 * np.pi - ((yaw2 + np.pi) - (yaw1 + np.pi))) * 180 / np.pi % 360
-                degree666 = 360-degree666
+                degree666 = 360 - degree666
                 print("turn_degreeeeeeeeeeeee:  ", degree666)
                 if say_degree == 0:
                     say("I turn" + str(int(degree666)) + "degree")
@@ -636,7 +646,7 @@ if __name__ == "__main__":
 
                 if ggg == 0: s_c = [9999]
                 TTT = min(s_c)
-                E = 0
+                E = s_c.index(TTT)
                 for i, detection in enumerate(bottle):
                     # print("1")
                     x1, y1, x2, y2, score, class_id = map(int, detection)
@@ -651,15 +661,14 @@ if __name__ == "__main__":
                                         (0, 0, 255), 2)
                             cv2.rectangle(down_image, (x1, y1), (x2, y2), (0, 0, 255), 5)
                             _, _, dddd1 = get_real_xyz(down_depth, cx1, cy1)
-
                         else:
                             v = s_c[i]
-                            cv2.putText(down_image, str(int(v)), (x1 + 5, y1 - 30), cv2.FONT_HERSHEY_SIMPLEX, 1,(0, 255, 0),2)
-            print("check_bootle_cnt", check_bootle_cnt)
-            print("step_now", step)
+                            cv2.putText(down_image, str(int(v)), (x1 + 5, y1 - 30), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                                        (0, 255, 0), 2)
+            mark=E
             step2 = "gettttt"
             if step2 == "gettttt":
-                #mark = 0
+                # mark = 0
                 print("turn_get")
                 if sb == 0:
 
@@ -700,7 +709,7 @@ if __name__ == "__main__":
                         cy = i
                 _, _, d = get_real_xyz(down_depth, cx, cy)
                 e = d - 200  # number is he last distance
-                print("bagdepth",d)
+                print("bagdepth", d)
                 if abs(e) <= 10:
                     step2 = "turn_again"
                     say("turn again")
@@ -737,7 +746,6 @@ if __name__ == "__main__":
                     v = max(v, -0.2)
                 move(0, v)
                 if abs(e) <= 3:
-                    get_b = mark
                     step = "grap"
                     step2 = "none"
 
@@ -776,8 +784,8 @@ if __name__ == "__main__":
         if step == "givehim":
             clear_costmaps
             say("I got the bag")
-            chassis.move_to(1.76,-0.196,2.921)
-            #門口
+            chassis.move_to(1.76, -0.196, 2.921)
+            # 門口
             # checking
             while not rospy.is_shutdown():
                 # 4. Get the chassis status.
@@ -829,7 +837,7 @@ if __name__ == "__main__":
         if step == "follow" and action == "check_voice":
             s = s.lower()
             print("speak", s)
-            if "thank" in s or "you" in s or "ok" in s:
+            if "thank" in s or "you" in s or "ok" in s or "robot" in s:
                 action = "none"
                 say("I will go back now, bye bye")
                 joint1, joint2, joint3, joint4 = 0.000, 0.0, 0, 1.5
@@ -848,8 +856,8 @@ if __name__ == "__main__":
         if step == "back3":
             say("I am back")
             clear_costmaps
-            chassis.move_to(3.467,-1.070,2.045)
-            #原點
+            chassis.move_to(3.467, -1.070, 2.045)
+            # 原點
             while not rospy.is_shutdown():
                 # 4. Get the chassis status.
                 code = chassis.status_code
