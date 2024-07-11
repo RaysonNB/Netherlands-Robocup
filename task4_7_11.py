@@ -547,6 +547,8 @@ if __name__ == "__main__":
                 # turn(degree666)
                 say("I see your hand")
                 move(0.0, 0.0)
+                az+=80
+                bz+=80
                 print("before position", ax, ay, az, bx, by, bz)
         if step == "_code":
             if mode == 0 and mode != 1:
