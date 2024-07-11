@@ -378,6 +378,7 @@ def callback_depth1(msg):
 def test_point(xs, ys, d):
     sty = ys
     stx = xs
+    d = d * np.pi / 180
     if sty * math.sin(d) < 0:
         n1x = -abs(sty * math.sin(d)) + stx * math.cos(d)
     else:
