@@ -636,6 +636,7 @@ if __name__ == "__main__":
                     cy1 = (y2 - y1) // 2 + y1
 
                     px, py, pz = get_real_xyz(down_depth, cx1, cy1)
+                    pz+=186
                     dis_list.append(pz)
                     # pxs2, pzs2, pxs1, pzs1 = test_point(px, pz, degree666)
                     # print("bottle",i+1, pxs2,py, pzs2)
