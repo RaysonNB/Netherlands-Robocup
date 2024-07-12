@@ -181,7 +181,10 @@ def get_distance(px, py, pz, ax, ay, az, bx, by, bz):
     return 0
 
 
-def get_real_xyz(dp, x, y):
+def get_real_xyz(dp, x, y, s):
+    numy,numz=0,0
+    if s=="down": numy,numz=-250,187
+    else: numy,numz=-1050,80
     a = 55.0 * np.pi / 180
     b = 86.0 * np.pi / 180
     d = dp[y][x]
@@ -191,7 +194,7 @@ def get_real_xyz(dp, x, y):
     real_y = round(y * 2 * d * np.tan(a / 2) / h)
     real_x = round(x * 2 * d * np.tan(b / 2) / w)
     print(real_x, real_y)
-    return real_x, real_y, d
+    return real_x, real_y+numy, d+numz
 
 
 def get_pose_target(pose, num):
@@ -524,12 +527,12 @@ if __name__ == "__main__":
                         a_num, b_num = 9, 7
                         A = list(map(int, poses[issack][a_num][:2]))
                         if (640 >= A[0] >= 0 and 320 >= A[1] >= 0):
-                            ax, ay, az = get_real_xyz(up_depth, A[0], A[1])
+                            ax, ay, az = get_real_xyz(up_depth, A[0], A[1],"up")
                             if az <= 1800 and az != 0:
                                 yu += 1
                         B = list(map(int, poses[issack][b_num][:2]))
                         if (640 >= B[0] >= 0 and 320 >= B[1] >= 0):
-                            bx, by, bz = get_real_xyz(up_depth, B[0], B[1])
+                            bx, by, bz = get_real_xyz(up_depth, B[0], B[1],"up")
                             if bz <= 1800 and bz != 0:
                                 yu += 1
                     if yu >= 2:
@@ -575,7 +578,7 @@ if __name__ == "__main__":
                 cy = min(cy, 480)
                 if (640 <= cx or cx < 0 and 320 <= cy or cy < 0): continue
 
-                k2, kk1, kkkz = get_real_xyz(down_depth, cx, cy)
+                k2, kk1, kkkz = get_real_xyz(down_depth, cx, cy,"down")
                 if kkkz > 2500 or abs(kkkz) <= 0: continue
                 al.append([x1, y1, x2, y2, score, class_id])
                 # print(float(score), class_id)
@@ -635,12 +638,11 @@ if __name__ == "__main__":
                     cx1 = (x2 - x1) // 2 + x1
                     cy1 = (y2 - y1) // 2 + y1
 
-                    px, py, pz = get_real_xyz(down_depth, cx1, cy1)
-                    pz+=186
+                    px, py, pz = get_real_xyz(down_depth, cx1, cy1,"down")
                     dis_list.append(pz)
                     # pxs2, pzs2, pxs1, pzs1 = test_point(px, pz, degree666)
                     # print("bottle",i+1, pxs2,py, pzs2)
-                    cnt = get_distance(px, py, pz, axs2, ay-770, azs2, bxs2, by-770, bzs2)
+                    cnt = get_distance(px, py, pz, axs2, ay, azs2, bxs2, by, bzs2)
                     cv2.putText(down_image, str(int(cnt) // 10), (x1 + 5, y1 - 40), cv2.FONT_HERSHEY_SIMPLEX, 1.15,
                                 (0, 0, 255), 2)
                     cnt = int(cnt)
@@ -668,7 +670,7 @@ if __name__ == "__main__":
                                         1.15,
                                         (0, 0, 255), 2)
                             cv2.rectangle(down_image, (x1, y1), (x2, y2), (0, 0, 255), 5)
-                            _, _, dddd1 = get_real_xyz(down_depth, cx1, cy1)
+                            _, _, dddd1 = get_real_xyz(down_depth, cx1, cy1,"down")
                             if i == 0: b1 += 1
                             if i == 1: b2 += 1
                             if i == 2: b3 += 1
@@ -724,7 +726,7 @@ if __name__ == "__main__":
                 for i in range(cy + 1, h):
                     if down_depth[cy][cx] == 0 or 0 < down_depth[i][cx] < down_depth[cy][cx]:
                         cy = i
-                _, _, d = get_real_xyz(down_depth, cx, cy)
+                _, _, d = get_real_xyz(down_depth, cx, cy,"down")
                 timems = round(abs(d*0.5)) // 0.2 // 10 -5
                 print(timems)
                 for i in range(round(timems)):
@@ -743,7 +745,7 @@ if __name__ == "__main__":
                     x1, y1, x2, y2, score, class_id = map(int, num)
                     cx2 = (x2 - x1) // 2 + x1
                     cy2 = (y2 - y1) // 2 + y1
-                    _, _, d = get_real_xyz(down_depth, cx2, cy2)
+                    _, _, d = get_real_xyz(down_depth, cx2, cy2,"down")
                     if abs(w // 2 - cx2) < min11:
                         min11 = abs(w // 2 - cx2)
                         ucx = cx2
@@ -823,7 +825,7 @@ if __name__ == "__main__":
                 cv2.circle(up_image, p5, 5, (0, 0, 255), -1)
                 cv2.circle(up_image, p6, 5, (0, 0, 255), -1)
                 cv2.circle(up_image, (cx, cy), 5, (0, 255, 0), -1)
-                _, _, d = get_real_xyz(up_depth, cx, cy)
+                _, _, d = get_real_xyz(up_depth, cx, cy,"up")
                 if d >= 1800 or d == 0: continue
                 if (d != 0 and d < min_d):
                     t_idx = i
@@ -835,7 +837,7 @@ if __name__ == "__main__":
                 p6 = list(map(int, poses[t_idx][6][:2]))
                 cx = (p5[0] + p6[0]) // 2
                 cy = (p5[1] + p6[1]) // 2
-                _, _, d = get_real_xyz(up_depth, cx, cy)
+                _, _, d = get_real_xyz(up_depth, cx, cy,"up")
                 cv2.circle(up_image, (cx, cy), 5, (0, 255, 255), -1)
 
                 print("people_d", d)
