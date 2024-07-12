@@ -493,7 +493,7 @@ if __name__ == "__main__":
                 text = chassis.status_text
                 if code == 3:
                     break
-            say("someone need help, come")
+            say("Master, your son got choked and he seems to be very painful")
             clear_costmaps
             chassis.move_to(3.93, -0.7740, 2.045)
             # 原點
@@ -507,7 +507,7 @@ if __name__ == "__main__":
             time.sleep(1)
             print("next")
             step = "person"
-        if step == "person":
+        if step == "person" and ("help" in s or "carry" in s):
             az, bz = 0, 0
             A = []
             B = []
@@ -850,7 +850,7 @@ if __name__ == "__main__":
             print("speak", s)
             if "thank" in s or "you" in s or "ok" in s or "robot" in s:
                 action = "none"
-                say("I will go back now, bye bye")
+                say("No worries, take care")
                 joint1, joint2, joint3, joint4 = 0.000, 0.0, 0, 1.5
                 set_joints(joint1, joint2, joint3, joint4, 1)
                 time.sleep(t)
@@ -865,7 +865,6 @@ if __name__ == "__main__":
                 action = "none"
                 step = "back3"
         if step == "back3":
-            say("I am back")
             clear_costmaps
             chassis.move_to(3.467, -1.070, 2.045)
             # 原點
