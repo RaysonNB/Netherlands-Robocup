@@ -377,7 +377,7 @@ def callback_depth1(msg):
     global _depth1
     _depth1 = CvBridge().imgmsg_to_cv2(msg, "passthrough")
 
-
+'''
 def test_point(xs, ys, d):
     sty = ys
     stx = xs
@@ -389,7 +389,12 @@ def test_point(xs, ys, d):
 
     n1y = ((stx ** 2 + sty ** 2) * math.cos(d) - stx * n1x) / sty
     return n1x, n1y
-
+'''
+def test_point(x, y, theta):
+    theta = theta * np.pi / 180
+    new_x = x * math.cos(theta) - y * math.sin(theta)
+    new_y = x * math.sin(theta) + y * math.cos(theta)
+    return new_x, new_y
 
 if __name__ == "__main__":
     rospy.init_node("demo")
