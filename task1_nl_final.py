@@ -388,6 +388,7 @@ def callback_depth1(msg):
     _depth1 = CvBridge().imgmsg_to_cv2(msg, "passthrough")
 
 def say3(g):
+    print(g)
     tts = gTTS(g)
 
     # Save the speech as an audio file
@@ -396,8 +397,7 @@ def say3(g):
 
     # Play the speech
     playsound(speech_file)
-
-
+    
 # gemini2
 def callback_image2(msg):
     global _frame2
