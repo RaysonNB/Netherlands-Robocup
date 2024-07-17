@@ -1071,6 +1071,7 @@ if __name__ == "__main__":
             else:
                 backcnt+=1
             move(x, z)
+            
         if action == "back3":
             # break
             #-1.951, -0.886, 0.396
