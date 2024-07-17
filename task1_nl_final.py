@@ -508,11 +508,11 @@ if __name__ == "__main__":
     # main var
     t, ee, s = 3.0, "", ""
     #get_bag
-    step = "none"
+    step = "get_bag"
 
     clear_costmaps = rospy.ServiceProxy("/move_base/clear_costmaps", Empty)
 
-    action = "5_line"
+    action = "none"
     # wait for prepare
     print("start")
     time.sleep(10)
@@ -939,10 +939,8 @@ if __name__ == "__main__":
             step = "check_voice"
         if action == "5_line":
             
-            left_right = [[5.343, -4.406,-2.16], [6.611,-5.012,-2.469], [6.876,-6.91,-2.997],
-                          [6.720,-8.950,2.541]]
-            right_left = [[6.720,-8.950,2.541], [6.876,-6.91,-2.997], [6.611,-5.012,-2.469],
-                          [5.343, -4.406,-2.16]]
+            left_right = [[5.343, -4.406,-2.16], [6.611,-5.012,-2.469], [6.876,-6.91,-2.997],[6.720,-8.950,2.541]]
+            right_left = [[6.720,-8.950,2.541], [6.876,-6.91,-2.997], [6.611,-5.012,-2.469],[5.343, -4.406,-2.16]]
             main_list = []
             if dir_pos == "left":
                 main_list = left_right
@@ -950,20 +948,19 @@ if __name__ == "__main__":
                 main_list = right_left
             change_mode = 0
             clear_costmaps
-            # chassis.move_to(-0.703,-4.65,0)
-            if queue_cnt==4:
+            if queue_cnt<=3:
+                print("queuecnt: ",queue_cnt)
+                ax, ay, az = main_list[queue_cnt]
+                chassis.move_to(ax, ay, az)
+                # checking
+                while not rospy.is_shutdown():
+                    # 4. Get the chassis status.
+                    code = chassis.status_code
+                    text = chassis.status_text
+                    if code == 3:
+                        break
+            else:
                 action="back3"
-            if queue_cnt > len(main_list)-1: action="back3"
-            print("queuecnt",queue_cnt)
-            ax, ay, az = main_list[queue_cnt]
-            chassis.move_to(ax, ay, az)
-            # checking
-            while not rospy.is_shutdown():
-                # 4. Get the chassis status.
-                code = chassis.status_code
-                text = chassis.status_text
-                if code == 3:
-                    break
             queue_cnt+=1
             action = "check"
         if action == "check":
@@ -982,7 +979,7 @@ if __name__ == "__main__":
                 cv2.circle(up_image, (cx, cy), 5, (0, 255, 0), -1)
                 _, _, d = get_real_xyz(up_depth, cx, cy, 2)
                 print("people_d, cx",d,cx)
-                if d <= 1400 and d != 0:
+                if d <= 1500 and d != 0:
                     change_mode = 1
             queue_checking+=1
             
