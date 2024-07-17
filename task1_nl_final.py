@@ -551,6 +551,8 @@ if __name__ == "__main__":
     queue_cnt = 0
     queue_checking = 0
     tar_depth = 1700
+    hhhhhhhhhhhhhhhhh=input("hhhhhhhhhh")
+    time.sleep(2)
     while not rospy.is_shutdown():
         # voice check
         # break
