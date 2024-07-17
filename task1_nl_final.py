@@ -949,8 +949,9 @@ if __name__ == "__main__":
             change_mode = 0
             clear_costmaps
             if queue_cnt<=3:
-                print("queuecnt: ",queue_cnt)
-                ax, ay, az = main_list[queue_cnt]
+                gg_ttr = min(queue_cnt,3)
+                print("queuecnt: ",gg_ttr)
+                ax, ay, az = main_list[gg_ttr]
                 chassis.move_to(ax, ay, az)
                 # checking
                 while not rospy.is_shutdown():
