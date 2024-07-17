@@ -508,11 +508,11 @@ if __name__ == "__main__":
     # main var
     t, ee, s = 3.0, "", ""
     #get_bag
-    step = "get_bag"
+    step = "none"
 
     clear_costmaps = rospy.ServiceProxy("/move_base/clear_costmaps", Empty)
 
-    action = "none"
+    action = "5_line"
     # wait for prepare
     print("start")
     time.sleep(10)
@@ -554,6 +554,7 @@ if __name__ == "__main__":
     tar_depth = 1700
     hhhhhhhhhhhhhhhhh=input("hhhhhhhhhh")
     time.sleep(2)
+    pre_ttr=-1
     while not rospy.is_shutdown():
         # voice check
         # break
@@ -699,10 +700,12 @@ if __name__ == "__main__":
 
         if action == "turn":
             if lr == "left":
+                say3("the left one")
                 for i in range(66):
                     move(0, 0.251)
                     time.sleep(0.1)
             else:
+                say3("the right one")
                 for i in range(66):
                     move(0, -0.251)
                     time.sleep(0.1)
@@ -963,10 +966,10 @@ if __name__ == "__main__":
                     text = chassis.status_text
                     if code == 3:
                         break
+                action = "check"
             else:
                 action="back3"
             queue_cnt+=1
-            action = "check"
         if action == "check":
             poses = net_pose.forward(up_image)
             print("checking")
@@ -1074,7 +1077,7 @@ if __name__ == "__main__":
             say3("I am going back, place give me some space")
             time.sleep(2.5)
             clear_costmaps
-            chassis.move_to(4.68,-6.84,0)
+            chassis.move_to(5.64,-6.94,0)
             # checking
             while not rospy.is_shutdown():
                 # 4. Get the chassis status.
