@@ -550,7 +550,7 @@ if __name__ == "__main__":
     backcnt = 0
     queue_cnt = 0
     queue_checking = 0
-
+    tar_depth = 1700
     while not rospy.is_shutdown():
         # voice check
         # break
@@ -979,7 +979,7 @@ if __name__ == "__main__":
                 cv2.circle(up_image, (cx, cy), 5, (0, 255, 0), -1)
                 _, _, d = get_real_xyz(up_depth, cx, cy, 2)
                 print("people_d, cx",d,cx)
-                if d <= 1500 and d != 0:
+                if d <= tar_depth and d != 0:
                     change_mode = 1
             queue_checking+=1
             
@@ -1042,7 +1042,7 @@ if __name__ == "__main__":
                 
                 if score < 0.5 or class_id !=0: continue
                 if class_id !=0: continue
-                if d >= 1500 or d == 0: continue
+                if d >= tar_depth or d == 0: continue
                 if (d != 0 and d < min_d):
                     print("find 1")
                     t_idx = i
@@ -1058,7 +1058,7 @@ if __name__ == "__main__":
                 _, _, d = get_real_xyz(up_depth, target_cx, traget_cy, 2)
                 cv2.circle(up_image, (target_cx, traget_cy), 10, (0, 255, 255), -1)
                 print("people_d", d)
-                if d <= 1500 and d != 0:
+                if d <= tar_depth and d != 0:
                     x, z, up_image, yn = _fw.calc_cmd_vel(up_image, up_depth, target_cx, traget_cy)
                     print("turn_x_z:", x, z)
             else:
