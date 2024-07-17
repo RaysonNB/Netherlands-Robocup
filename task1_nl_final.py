@@ -549,6 +549,7 @@ if __name__ == "__main__":
     # right_90()
     backcnt = 0
     queue_cnt = 0
+    queue_say_cnt = 0
     queue_checking = 0
     tar_depth = 1700
     hhhhhhhhhhhhhhhhh=input("hhhhhhhhhh")
@@ -988,7 +989,7 @@ if __name__ == "__main__":
             
             if change_mode == 1:
                 action = "walking"
-                say3("i find the queue")
+                say3("i find the queue, I am in the queue now")
             if queue_checking>=5:
                 action = "5_line"
                 say3("no people")
