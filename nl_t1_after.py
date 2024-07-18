@@ -965,15 +965,18 @@ if __name__ == "__main__":
                     yyyy_mode=1
                     break
             if yyyy_mode!=-1:
+                say3("this object affect me")
                 clear_costmaps
-                chassis.move_to(ttt_num1,ttt_num2,ttt_num3)
-                # checking
-                while not rospy.is_shutdown():
-                    # 4. Get the chassis status.
-                    code = chassis.status_code
-                    text = chassis.status_text
-                    if code == 3:
-                        break
+                time.sleep(1)
+                if ttt_num1!=0:
+                    chassis.move_to(ttt_num1,ttt_num2,ttt_num3)
+                    # checking
+                    while not rospy.is_shutdown():
+                        # 4. Get the chassis status.
+                        code = chassis.status_code
+                        text = chassis.status_text
+                        if code == 3:
+                            break
                 clear_costmaps
                 chassis.move_to(-0.366,-6.69,0)
                 # checking
