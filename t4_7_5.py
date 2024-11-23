@@ -361,15 +361,6 @@ def move_to(x, y, z, t):
 def callback_voice(msg):
     global s
     s = msg.text
-
-def callback_image1(msg):
-    global _image1
-    _image1 = CvBridge().imgmsg_to_cv2(msg, "bgr8")
-
-
-def callback_depth1(msg):
-    global _depth1
-    _depth1 = CvBridge().imgmsg_to_cv2(msg, "passthrough")
 def test_point(xs, ys, d):
     d = d * math.pi / 180
     ys1 = math.cos(d) * ys + math.sin(d) * xs  # 12 to 01
@@ -391,16 +382,6 @@ if __name__ == "__main__":
 
     depth2 = None
     rospy.Subscriber("/cam1/depth/image_raw", Image, callback_depth2)
-
-    _image1 = None
-    _topic_image1 = "/cam2/color/image_raw"
-    frame1 = rospy.Subscriber(_topic_image1, Image, callback_image1)
-    print("astra depth")
-    _depth1 = None
-    _topic_depth1 = "/cam2/depth/image_raw"
-    depth1 = rospy.Subscriber(_topic_depth1, Image, callback_depth1)
-    # _sub_up_cam_image.unregister()
-
     s = ""
     t = 3.0
     print("speaker")
@@ -458,24 +439,15 @@ if __name__ == "__main__":
         if depth2 is None:
             print("depth_down")
             continue
-        if frame1 is None:
-            print("frame_up")
-            continue
-        if depth1 is None:
-            print("depth_up")
-            continue
-
         down_image = frame2.copy()
         down_depth = depth2.copy()
-        up_image = frame1.copy()
-        up_depth = depth1.copy()
 
         if step == "person":
             az, bz = 0, 0
             A = []
             B = []
             yu = 0
-            poses = net_pose.forward(up_image)
+            poses = net_pose.forward(down_image)
             if len(poses) > 0:
                 YN = -1
                 a_num, b_num = 9, 7
@@ -487,20 +459,20 @@ if __name__ == "__main__":
                         a_num, b_num = 9, 7
                         A = list(map(int, poses[issack][a_num][:2]))
                         if (640 >= A[0] >= 0 and 320 >= A[1] >= 0):
-                            ax, ay, az = get_real_xyz(up_depth, A[0], A[1])
+                            ax, ay, az = get_real_xyz(down_depth, A[0], A[1])
                             if az <= 1800 and az != 0:
                                 yu += 1
                         B = list(map(int, poses[issack][b_num][:2]))
                         if (640 >= B[0] >= 0 and 320 >= B[1] >= 0):
-                            bx, by, bz = get_real_xyz(up_depth, B[0], B[1])
+                            bx, by, bz = get_real_xyz(down_depth, B[0], B[1])
                             if bz <= 1800 and bz != 0:
                                 yu += 1
                     if yu >= 2:
                         break
             print(A, B)
             if len(A) != 0 and len(B) != 0 and yu >= 2:
-                cv2.circle(up_image, (A[0], A[1]), 3, (255, 255, 0), -1)
-                cv2.circle(up_image, (B[0], B[1]), 3, (255, 255, 0), -1)
+                cv2.circle(down_image, (A[0], A[1]), 3, (255, 255, 0), -1)
+                cv2.circle(down_image, (B[0], B[1]), 3, (255, 255, 0), -1)
             if len(A) != 0 and len(B) != 0 and az != 0 and bz != 0:
                 hand_cnt += 1
             if hand_cnt >= 5:
